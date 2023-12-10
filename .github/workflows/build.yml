@@ -1,0 +1,52 @@
+name: maven-container
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "eclipse-temurin-21-alpine/**"
+      - .github/workflows/eclipse-temurin-21-alpine.yml
+      - .github/workflows/_template.yml
+      - common.sh
+      - tags-for-dir.sh
+      - "tests/**"
+      - "!tests/*.ps*"
+      - "!tests/*.windows"
+  pull_request:
+    paths:
+      - "eclipse-temurin-21-alpine/**"
+      - .github/workflows/eclipse-temurin-21-alpine.yml
+      - .github/workflows/_template.yml
+      - common.sh
+      - tags-for-dir.sh
+      - "tests/**"
+      - "!tests/*.ps*"
+      - "!tests/*.windows"
+
+env:
+  # Use docker.io for Docker Hub if empty
+  REGISTRY: ghcr.io
+  REGISTRY2: docker.io
+  DOCKERHUB_USERNAME: khmarbaise
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3.0.0
+      - name: Setup Docker buildx
+        uses: docker/setup-buildx-action@v3.0.0
+
+      - name: Build and push Docker image
+        id: build-and-push
+        uses: docker/build-push-action@v5
